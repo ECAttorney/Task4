@@ -2,34 +2,44 @@
 <html lang="en">
 
 <head>
-  <title>GeoSoftware1 Assignment 3</title>
+  <title>GeoSoftware1 Assignment 4</title>
   <meta charset="UTF-8">
   <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+  integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+  crossorigin=""/>
 
 
 </head>
 <body onload="onLoad()">
+  <div id="map"></div>
+  <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
+  integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
+  crossorigin=""></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
   <script src="pois.js"></script>
   <script src="point.js"></script>
   <script src="script.js"></script>
+  <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
 
   <div class="a" align="center">
-  <h1>GeoSoftware1 Assignment 3</h1>
+  <h1>GeoSoftware1 Assignment 4</h1>
 
   <div>
-  	assignment: 03 <br>
+  	assignment 04 by Luca Hesse<br>
   	course: Geosoftware I SoSe 2022 <br>
   	template authors: Noel Schnierer, Felix Niebl, Nick Jakuschona <br> <br>
-
-    Diese Seite nimmt eine Liste von POIs im GeoJSON-Format und einen Nutzerdefinierten Standort entgegen, und berechnet die distanz vom Standort zu allen POIs. Die POIs werden, mit aufsteigender Distanz sortiert, in einer Tabelle dargestellt.
 
     <hr>
 
     current position geojson: <br>
     <textarea rows="2" id="userPosition"></textarea><br>
-    <button id="refreshBtn" class="button" type="button">refresh</button>
-    <button id="getLocationBtn" class="button" type="button">get user location</button>
-    <button id="getDataBtn" class="button" type="button">nearby stations</button>
+    <button id="refreshBtn" class="button" type="button">Refresh</button>
+    <button id="getLocationBtn" class="button" type="button">Get User Location</button>
+    <button id="getDataBtn" class="button" type="button">Nearby Stations</button>
+    <button id="toolbarBtn" class="button" type="button">Add Toolbar!</button>
+    <button id="cutSelectionBtn" class="button" type="button">Cut Selection!</button>
   </div>
 
   <br>

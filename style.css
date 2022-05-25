@@ -1,3 +1,4 @@
+#map { height: 800px; }
 div.a {
   text-align: center;
   font-family: Consolas;
@@ -16,6 +17,8 @@ th{
   background-color: #A9A9A9;
   color: white;
 }
+
+
 table, th, td {
   padding: 10px;
     border: 2px solid #A9A9A9;

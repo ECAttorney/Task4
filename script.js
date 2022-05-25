@@ -9,6 +9,9 @@
 //declaration of global variables
 var pointcloud;
 var point;
+var map = L.map('map').setView([51.9606649 , 7.6261347], 14);
+var boundingbox = [];
+var markers = [];
 
 /**
 * @function onLoad function that is executed when the page is loaded
@@ -35,10 +38,28 @@ function onLoad() {
     getData();
   }
   );
- 
-  //daten vorbereiten und main ausführen
+  document.getElementById("toolbarBtn").addEventListener("click",
+  () => {
+   fetch();
+   addToolbar();
+  }
+  );
+  document.getElementById("cutSelectionBtn").addEventListener("click",
+  () => {
+    cutSelection(boundingbox);
+  }
+  );
+  
   pois = JSON.parse(pois);
   main(point, pointcloud);
+  L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 18,
+    id: 'mapbox/streets-v11',
+    tileSize: 512,
+    zoomOffset: -1,
+    accessToken: 'pk.eyJ1IjoiZHdlaXNzd3d1IiwiYSI6ImNsM2lodm83YjA3YmUzam83djZxb2p5amcifQ.4MjT-si3woW0JUIrZ9Jv6A'
+}).addTo(map);
 }
 
 //##############################################################################
@@ -272,7 +293,7 @@ function arrayToGeoJSON(inputArray) {
 
 /**
  * @function showPosition
- * @desc Shows the position of the user in the textares
+ * @desc Shows the position of the user in the textareas
  * @param {*} position Json object of the user
  */
 function showPosition(position) {
@@ -288,7 +309,7 @@ function showPosition(position) {
 }
 
 /**
- * @function bushaltestellenImUmkreis
+ * @function radiusCalculation
  * @desc this function takes an radius, aswell as an Array of bus stations. It calculates, whether a bus station is within the given radius 
  *       -> if so, this bus station gets added to a new Array and afterwards this Array is used in function "drawTable1"
  * @param {*} radius 
@@ -352,7 +373,7 @@ const getData = () => {
     let halteStellenArray = Array.apply(null, Array[data.features.length]);
 
     // iterate through all bus stations and store them in "halteStellenArray"
-    for (var h = 0; h < data.features.length; h++) {
+    for(var h = 0; h < data.features.length; h++) {
      halteStellenArray[h] = new Bushaltestelle(data.features[h].properties.nr, data.features[h].properties.lbez, data.features[h].properties.richtung, data.features[h].geometry.coordinates);
      
      }
@@ -363,6 +384,133 @@ const getData = () => {
     }
 
   xhr.send();
+}
+
+/**
+ * @function fetch
+ * @desc this function adds all the bus stations as markers to the map
+ */
+function fetch() {
+
+  fetch("https://rest.busradar.conterra.de/prod/haltestellen")
+  .then(response => {
+
+    let resp = response.json()
+    
+    resp.then(data => {
+
+     
+      // array, which can save all bus stations
+      let haltestellen = Array.apply(null, Array[data.features.length]);
+
+      // iterating trough the all the data and add every bus station to the array
+      for (var i = 0; i < data.features.length; i++) {
+        
+        haltestellen[i] = new Bushaltestelle(data.features[i].properties.nr, data.features[i].properties.lbez, data.features[i].properties.richtung, data.features[i].geometry.coordinates);
+      }
+
+      // function, to show the bus stations as markers
+      showBusStations(haltestellen);
+
+    })
+  })
+  .catch(error => console.log(error))
+}
+
+/**
+ * @function showBusStations
+ * @desc this function iterates trough all bus stations and show them as markers on the map
+ * @param {*} haltestellen 
+ */
+function showBusStations(haltestellen){
+
+  // iteraring trough all bus stations
+  for(var i = 0; i < haltestellen.length; i++){
+
+    // creating a marker
+    var marker = L.marker([haltestellen[i].koordinaten[1], haltestellen[i].koordinaten[0]]).addTo(map);
+
+    // push the marker into the markers array
+    markers.push(marker);
+    
+    // creating the popup with the attributes: name, richtung and Entfernung
+    marker.bindPopup("<b> "+ haltestellen[i].name + "</b><br>Richtung: " + haltestellen[i].richtung + "<br>Entfernung: " + Math.round(twoPointDistance(haltestellen[i].koordinaten, point)) + " m").openPopup();
+
+  }
+
+}
+
+/**
+ * @function addToolbar
+ * @desc this function adds the toolbar to the map
+ * @src http://leaflet.github.io/Leaflet.draw/docs/leaflet-draw-latest.html
+ */
+function addToolbar(){
+
+  L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+
+      attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
+  var drawnItems = new L.FeatureGroup();
+  var drawControl = new L.Control.Draw({
+
+    draw: {
+      polygon: false,
+      marker: false,
+      circle: false,
+      polyline: false,
+      circlemarker: false
+    },
+      edit: {
+          featureGroup: drawnItems
+      }
+  });
+ 
+  map.on(L.Draw.Event.CREATED, (e) => {
+
+    var layer = e.layer;
+
+    boundingbox = layer.toGeoJSON().geometry.coordinates;
+    drawnItems.addLayer(layer);
+    map.addLayer(layer);
+  })
+
+  map.addLayer(drawnItems)
+  map.addControl(drawControl)
+}
+
+/**
+ * @function cutSelection
+ * @desc This function removes all markers, which are not inside of the bounding box
+ * @param {*} boundingBox - Polygon, created on the leaflet map
+ */
+function cutSelection(boundingBox){
+  
+  // array, which saves all markers, that aren't inside the bounding box and there removed afterwards
+  var removedMarkers = [];
+  
+  // iterating trough all markers
+  for(var i = 0; i < markers.length ; i++){
+
+      var pnt = turf.point([markers[i]._latlng.lng, markers[i]._latlng.lat]);
+      var polygon  = turf.polygon(boundingBox);
+
+      // if the marker isn't inside the bounding box it gets added to the removable marker array
+      if(turf.booleanPointInPolygon(pnt, polygon) == false){ 
+
+        removedMarkers.push(markers[i]);
+
+      }
+  }
+
+  // iterating trough all removable markers and delete them from the map
+  for(var j = removedMarkers.length -1 ; j >= 0 ; j--) {
+
+    map.removeLayer(removedMarkers[j]);
+
+  }
+  
 }
 
 /**
