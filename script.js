@@ -40,8 +40,9 @@ function onLoad() {
   );
   document.getElementById("toolbarBtn").addEventListener("click",
   () => {
-   fetch();
    addToolbar();
+   fetch();
+   
   }
   );
   document.getElementById("cutSelectionBtn").addEventListener("click",
