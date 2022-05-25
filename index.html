@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>GeoSoftware1 Assignment 3</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" type="text/css" href="style.css">
+
+
+</head>
+<body onload="onLoad()">
+  <script src="pois.js"></script>
+  <script src="point.js"></script>
+  <script src="script.js"></script>
+
+  <div class="a" align="center">
+  <h1>GeoSoftware1 Assignment 3</h1>
+
+  <div>
+  	assignment: 03 <br>
+  	course: Geosoftware I SoSe 2022 <br>
+  	template authors: Noel Schnierer, Felix Niebl, Nick Jakuschona <br> <br>
+
+    Diese Seite nimmt eine Liste von POIs im GeoJSON-Format und einen Nutzerdefinierten Standort entgegen, und berechnet die distanz vom Standort zu allen POIs. Die POIs werden, mit aufsteigender Distanz sortiert, in einer Tabelle dargestellt.
+
+    <hr>
+
+    current position geojson: <br>
+    <textarea rows="2" id="userPosition"></textarea><br>
+    <button id="refreshBtn" class="button" type="button">refresh</button>
+    <button id="getLocationBtn" class="button" type="button">get user location</button>
+    <button id="getDataBtn" class="button" type="button">nearby stations</button>
+  </div>
+
+  <br>
+
+  <div id="geoJSON" class="script" align="center">
+  </div>
+
+  <br>
+<div style= "display: none">
+
+  <table style="width:75%" align="center" id="resultTable">
+    <tr>
+      <th>Coordinates</td>
+      <th>Point of Interest</td>
+      <th>Distance (in meters)</td>
+    </tr>
+  </table>
+</div>
+
+  <table style="width:75%" align="center" id="resultTable1">
+    <tr>
+      <th>Haltestellen Name</td>
+      <th>Koordinaten</td>
+      <th>Entfernung (m)</td>
+    </tr>
+  </table>
+<br/>
+  <table style="width:75%" align="center" id="resultTable2">
+    <tr>
+      <th>Haltestellen Name</td>
+      <th>Richtung</td>
+      <th>Linie</td>
+      <th>Abfahrtszeit</td>
+    </tr>
+  </table>
+
+  </div>
+</body>
+</html>
